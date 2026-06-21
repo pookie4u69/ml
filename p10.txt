@@ -1,0 +1,20 @@
+import numpy as np
+from sklearn.datasets import load_breast_cancer
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+data = load_breast_cancer()
+x = data.data
+scaler = StandardScaler()
+x = scaler.fit_transform(x)
+Kmeans = KMeans(n_clusters = 2)
+Kmeans.fit(x)
+labels = Kmeans.labels_
+centers = Kmeans.cluster_centers_
+plt.scatter(x[:,0],x[:,1],c=labels)
+plt.scatter(centers[:,0],centers[:,1],color = "red",marker = "x")
+plt.title("kmeans classification ")
+plt.xlabel("f1")
+plt.ylabel("f2")
+plt.show()
+print("centroids: ",centers)
