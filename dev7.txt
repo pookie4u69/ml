@@ -1,0 +1,41 @@
+[local]
+localhost ansible_connection=local
+
+
+- name: My first task
+  hosts: local
+  connection: local
+  tasks:
+   - name: My first task
+     debug:
+      msg: "Ansible is a config mgmt tool"
+
+
+
+from ansible.module_utils.basic import AnsibleModule
+
+module = AnsibleModule(
+    argument_spec={
+        "name": {"type": "str", "required": True}
+    }
+)
+
+module.exit_json(
+    changed=False,
+    message="Hello " + module.params["name"]
+)
+
+
+
+---
+- hosts: localhost
+  gather_facts: no
+
+  tasks:
+
+    - hello:
+        name: "CMRIT"
+      register: result
+
+    - debug:
+        msg: "{{ result.message }}"
