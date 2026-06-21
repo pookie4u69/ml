@@ -1,0 +1,24 @@
+import pandas as pd 
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+iris = load_iris()
+x_pca = PCA(n_components=2).fit_transform(StandardScaler().fit_transform(iris.data))
+print(x_pca)
+df = pd.DataFrame(x_pca,columns=['PCA1','PCA2'])
+df['Target'] = iris.target
+plt.figure(figsize=(8,6))
+colors = ['r','g','b']
+for i,name in enumerate(iris.target_names):
+  plt.scatter(df[df['Target']==i]['PCA1'],
+              df[df['Target']==i]['PCA2'],
+              color = colors[i],
+              alpha = 0.6,
+              label = name
+  )
+plt.title("pca")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.legend()
+plt.show()
