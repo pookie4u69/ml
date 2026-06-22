@@ -20,4 +20,13 @@ y_faces_pred = gnb.predict(X_faces_test)
 accuracy=accuracy_score(y_faces_test, y_faces_pred)
 print("Accuracy: of NB on OFD : {:.2f}%".format(accuracy * 100))
 print("\nclassification")
+
+fig, axes = plt.subplots(2,5, figsize=(12,5))
+for i, ax in enumerate(axes.flat):
+    ax.imshow(X_faces_test[i].reshape(64, 64), cmap='grey')
+    ax.set_title(f"Predicted: {y_faces_pred[i]}\nActual: {y_faces_test[i]}")
+    ax.axis('off')
+
+plt.tight_layout()
+plt.show()
 print(classification_report(y_faces_test, y_faces_pred))
