@@ -1,22 +1,23 @@
 import numpy as np
 import matplotlib.pyplot as plt
+
+import numpy as np
 np.random.seed(42)
-x = np.linspace(0,10,100)
-y = np.sin(x) + np.random.normal(0,0.2,100)
-x = x[:,np.newaxis]
-tau = 0.5
-y_pred = []
-for x0 in x:
-  w = np.exp(-np.sum((x-x0)**2,axis=1)/(2*(tau)**2))
-  W = np.diag(w)
-  x_b = np.hstack([np.ones_like(x),x])
-  theta = np.linalg.inv(x_b.T @ W @ x_b)@ x_b.T @ W @ y
-  y0 = np.array([1,x0[0]]) @ theta
-  y_pred.append(y0)
-plt.scatter(x,y,s=10)
-plt.plot(x,y_pred,color = "red")
-plt.title("weighted locally regression:")
-plt.xlabel("x")
-plt.ylabel("y")
-plt.grid(True)
+X=np.linspace(-3,3,100).reshape(-1,1)
+y=np.sin(X.ravel())+np.random.normal(scale=0.1,size=X.shape[0])
+
+def locally_weighted_regression(x_query,X_train,y_train,tau):
+  W=np.exp(-((X_train-x_query)**2)/(2*tau**2))
+  X_bias=np.c_[np.ones_like(X_train),X_train]
+  theta=np.linalg.pinv(X_bias.T@np.diag(W.ravel())@X_bias)@X_bias.T@np.diag(W.ravel())@y_train
+  return np.array([1,x_query])@theta
+
+
+X_test=np.linspace(-3,3,100)
+y_pred=np.array([locally_weighted_regression(x,X,y,tau=0.5) for x in X_test])
+
+
+plt.scatter(X,y,color="gray",alpha=0.5,label="Training Data")
+plt.plot(X_test,y_pred,color="red",linewidth=2,label="LWR Fit(tau=0.5)")
+plt.legend()
 plt.show()
