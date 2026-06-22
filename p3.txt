@@ -1,24 +1,40 @@
-import pandas as pd 
+import pandas as pd
+import numpy as np
 from sklearn.datasets import load_iris
 from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
-iris = load_iris()
-x_pca = PCA(n_components=2).fit_transform(StandardScaler().fit_transform(iris.data))
-print(x_pca)
-df = pd.DataFrame(x_pca,columns=['PCA1','PCA2'])
-df['Target'] = iris.target
+
+iris=load_iris()
+X=iris.data
+Y=iris.target
+print("Feature Data",X)
+print("\n Target Values\n",Y)
+
+scaler=StandardScaler()
+X_scaled=scaler.fit_transform(X)
+print(X_scaled)
+
+cov_matrix=np.cov(X_scaled.T)
+print(cov_matrix)
+
+eigenvalues,eigenvectors=np.linalg.eig(cov_matrix)
+print(eigenvalues)
+print(eigenvectors)
+
+sorted_indices=np.argsort(eigenvalues)[::-1]
+eigenvectors_sorted=eigenvectors[:,sorted_indices]
+print(eigenvectors_sorted)
+
+top2_eigenvectors=eigenvectors_sorted[:,:2]
+print(top2_eigenvectors)
+
+X_pca=np.dot(X_scaled,top2_eigenvectors)
+print(X_pca)
+
 plt.figure(figsize=(8,6))
-colors = ['r','g','b']
-for i,name in enumerate(iris.target_names):
-  plt.scatter(df[df['Target']==i]['PCA1'],
-              df[df['Target']==i]['PCA2'],
-              color = colors[i],
-              alpha = 0.6,
-              label = name
-  )
-plt.title("pca")
-plt.xlabel("x")
-plt.ylabel("y")
-plt.legend()
+plt.scatter(X_pca[:,0],X_pca[:,1],c=Y,cmap='viridis',edgecolor='k',s=50)
+plt.xlabel('Principal Component 1')
+plt.ylabel('Principal Component 2')
+
+plt.colorbar(label="Species")
 plt.show()
