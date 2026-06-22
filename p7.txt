@@ -1,69 +1,75 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.datasets import fetch_openml
+import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error
 
-def linear_regression_boston():
-    boston = fetch_openml(name="boston", version=1, as_frame=True)
-    print(boston)
-    X = boston.data.to_numpy() 
-    y = boston.target.to_numpy() 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    lin_reg = LinearRegression()
-    lin_reg.fit(X_train, y_train)
-    y_pred = lin_reg.predict(X_test)
-    mse = mean_squared_error(y_test, y_pred)
-    r2 = r2_score(y_test, y_pred)
-    plt.figure(figsize=(10, 6))
-    plt.scatter(y_test, y_pred, alpha=0.6)
-    plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], color="red", linewidth=2)
-    plt.xlabel("True Values (Boston Housing)")
-    plt.ylabel("Predicted Values")
-    plt.title("Linear Regression on Boston Housing Dataset")
-    plt.grid(True)
-    plt.show()
 
-    print(f"Linear Regression Results:")
-    print(f"Mean Squared Error: {mse:.2f}")
-    print(f"R^2 Score: {r2:.2f}")
-def polynomial_regression_auto_mpg():
-    auto_mpg = fetch_openml(name="autoMpg", version=1, as_frame=True)
-    data = auto_mpg.data
-    print(data)
-    target = auto_mpg.target.astype(float)  
-    print(target)
-    data = data.dropna(subset=["horsepower"])
-    target = target.loc[data.index] 
-    X_hp = data[["horsepower"]].astype(float) 
-    y_mpg = target
-    X_train, X_test, y_train, y_test = train_test_split(X_hp, y_mpg, test_size=0.2, random_state=42)
-    poly_features = PolynomialFeatures(degree=3)
-    X_train_poly = poly_features.fit_transform(X_train)
-    X_test_poly = poly_features.transform(X_test)
-    lr_poly = LinearRegression()
-    lr_poly.fit(X_train_poly, y_train)
-    y_pred_poly = lr_poly.predict(X_test_poly)
-    mse_poly = mean_squared_error(y_test, y_pred_poly)
-    r2_poly = r2_score(y_test, y_pred_poly)
-    X_test_sorted, y_test_sorted = zip(*sorted(zip(X_test.values.flatten(), y_test)))
-    y_pred_sorted = lr_poly.predict(poly_features.transform(np.array(X_test_sorted).reshape(-1, 1)))
-    plt.figure(figsize=(10, 6))
-    plt.scatter(X_test, y_test, color="blue", label="True values", alpha=0.6)
-    plt.plot(X_test_sorted, y_pred_sorted, color="red", label="Polynomial fit (degree=3)", linewidth=2)
-    plt.xlabel("Horsepower")
-    plt.ylabel("Miles Per Gallon (MPG)")
-    plt.title("Polynomial Regression on Auto MPG Dataset")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
+df = pd.read_csv('/content/BostonHousingData.csv')
+display(df.head())
 
-    print(f"Polynomial Regression Results (Degree=3):")
-    print(f"Mean Squared Error: {mse_poly:.2f}")
-    print(f"R^2 Score: {r2_poly:.2f}")
-def run_models():
-    linear_regression_boston()
-    polynomial_regression_auto_mpg()
-run_models()
+df['CRIM'].fillna(df['CRIM'].mean(), inplace=True)
+df['ZN'].fillna(df['ZN'].mean(), inplace=True)
+df['INDUS'].fillna(df['INDUS'].mean(), inplace=True)
+df['CHAS'].fillna(df['CHAS'].mode()[0], inplace=True)
+df['AGE'].fillna(df['AGE'].mean(), inplace=True)
+df['LSTAT'].fillna(df['LSTAT'].mean(), inplace=True)
+
+display(df.head())
+
+x=df.drop('MEDV', axis=1)
+y=df['MEDV']
+
+
+X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+reg = LinearRegression()
+reg.fit(X_train, y_train)
+y_pred = reg.predict(X_test)
+
+from sklearn.metrics import r2_score
+
+def print_metrics(y_test, y_pred, model_name):
+  mse = mean_squared_error(y_test, y_pred)
+  r2 = r2_score(y_test, y_pred)
+  print(f"{model_name} Mean Squared Error: {mse:}")
+  print(f"{model_name} R2 Score: {r2:}")
+
+print_metrics(y_test, y_pred, 'Linear Regression')
+
+plt.figure(figsize=(10, 6))
+plt.scatter(y_test, y_pred, label='Linear Regression')
+min_val = min(min(y_test), min(y_pred))
+max_val = max(max(y_test), max(y_pred))
+plt.plot([min_val, max_val], [min_val, max_val], color='red', linestyle='--', label='Ideal Prediction')
+plt.xlabel('Actual Prices')
+plt.ylabel('Predicted Prices')
+plt.legend()
+plt.title('Actual Prices vs Predicted Prices')
+plt.show()
+
+data = pd.read_csv('/content/auto-mpg.csv')
+data=data.dropna()
+x=data['weight']
+y=data['mpg']
+
+xtrain, xtest, ytrain, ytest = train_test_split(x, y, test_size=0.2, random_state=42)
+poly = PolynomialFeatures(degree=2)
+xtrainpoly = poly.fit_transform(xtrain.to_frame())
+xtestpoly = poly.transform(xtest.to_frame())
+model = LinearRegression()
+model.fit(xtrainpoly, ytrain)
+ypred = model.predict(xtestpoly)
+print('mse:', mean_squared_error(ytest, ypred))
+print("R2 score", r2_score(ytest, ypred))
+
+plt.scatter(xtest, ytest, color='blue', label='Actual Values')
+plt.scatter(xtest, ypred, color='red', label='Predicted Values')
+plt.xlabel("Weight")
+plt.ylabel("mpg")
+plt.title('Polynomial Regression (degree 2) - Auto MPG')
+plt.legend()
+plt.show()
+
+
