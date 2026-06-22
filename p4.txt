@@ -1,29 +1,25 @@
-import pandas as pd 
-data = {
-    "Weather":["Sunny","Sunny","Rainy","Sunny"],
-    "Temperature":["Warm","Warm","Cold","Warm"],
-    "Humidity":["Normal","High","High","High"],
-    "Wind":["Strong","Strong","Strong","Weak"],
-    "PlayTennis":["Yes","Yes","No","Yes"]
-}
-df = pd.DataFrame(data)
-df.to_csv("training_data.csv", index=False)
-print("CSV file created successfully")
-def find_s(data):
-    X = data.iloc[:,:-1].values
-    y = data.iloc[:,-1].values
-    h = None
-    for i in range(len(y)):
-        if y[i] == "Yes":
-            if h is None:
-                h = X[i].copy()
-            else:
-                for j in range(len(h)):
-                    if h[j] != X[i][j]:
-                        h[j] = '?'
-    return h
-data = pd.read_csv("training_data.csv")
-print("Training Data:")
+
+import pandas as pd
+
+data=pd.read_csv("/content/train_data - Sheet1.csv")
 print(data)
-print("Final Hypothesis:")
-print(find_s(data))
+
+positive_examples=data[data['Class']==1]
+print(positive_examples)
+
+if positive_examples.empty:
+  print("\n No positive data")
+
+hypo=list(positive_examples.iloc[0, :-1])
+print(hypo)
+
+for _,example in positive_examples.iloc[1:].iterrows():
+  print(f"Examples:{example[:-1]}\n")
+
+  for i in range(len(hypo)):
+    if hypo[i]!=example.iloc[i]:
+      hypo[i]='?'
+
+  print(f"Hypothesis:{hypo}\n")
+
+print(f"Final Hypothesis after ecample {example.name}:{hypo}\n")
