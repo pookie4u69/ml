@@ -1,18 +1,24 @@
 import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.datasets import fetch_california_housing
+import numpy as np
+
 data = fetch_california_housing(as_frame=True)
 df = data.frame
-print("dataset samples:")
 print(df.head())
-corr = df.corr()
-print("correlation matrix:")
-print(corr)
-plt.figure(figsize = (10,8))
-sns.heatmap(corr,annot = True,fmt = ".2f",cmap="coolwarm")
-plt.title("heatmap: ")
+
+corr_matrix=df.corr()
+print(corr_matrix)
+
+plt.figure(figsize=(14,10))
+sns.heatmap(
+    corr_matrix,
+    annot=True,
+    cmap="coolwarm",
+    linewidths=0.5
+)
 plt.show()
-g = sns.pairplot(df,corner=True)
-g.fig.suptitle("pair plot fearure",y=1.02)
+
+sns.pairplot(df)
 plt.show()
