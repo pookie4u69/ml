@@ -9,33 +9,36 @@ localhost ansible_connection=local
    - name: My first task
      debug:
       msg: "Ansible is a config mgmt tool"
+     
+   - name: My second task
+     debug:
+      msg: "dhurandar"
 
 
-
+#!/usr/bin/python
 from ansible.module_utils.basic import AnsibleModule
 
-module = AnsibleModule(
-    argument_spec={
-        "name": {"type": "str", "required": True}
-    }
-)
-
-module.exit_json(
-    changed=False,
-    message="Hello " + module.params["name"]
-)
+def demo():
+   module_args = dict(name=dict(type='str', required=True))
+   module = AnsibleModule(argument_spec=module_args)
+   result = {"changed":False, "message":f"Congrats,{module.params['name']}"}
+   module.exit_json(**result)
+   
+if __name__ == '__main__':
+   demo()
 
 
 
 ---
-- hosts: localhost
+- name: Ansible with one module
+  hosts: local
   gather_facts: no
-
   tasks:
-
-    - hello:
-        name: "CMRIT"
-      register: result
-
-    - debug:
-        msg: "{{ result.message }}"
+   - name: Welcome friends
+     first_module:
+       name: " students, you have competed 7th program"
+     register: result
+     
+   - name: Climbe Skandagiri hills
+     debug:
+       msg: "{{result.message}}"
